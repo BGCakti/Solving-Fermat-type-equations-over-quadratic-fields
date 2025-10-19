@@ -1,0 +1,1 @@
+# Solving-Fermat-type-equations-over-quadratic-fields
