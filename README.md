@@ -1,1 +1,1 @@
-# Solving-Fermat-type-equations-over-quadratic-fields
+In this repository, we provide the Magma codes and their outputs that verify the computational claims made in the paper "Solving Fermat-type equations over quadratic fields". (arXiv link: https://arxiv.org/abs/2509.14280)
