@@ -1,0 +1,319 @@
+{\rtf1\ansi\ansicpg1252\cocoartf2822
+\cocoatextscaling0\cocoaplatform0{\fonttbl\f0\fnil\fcharset0 Menlo-Regular;\f1\fnil\fcharset0 Menlo-Bold;\f2\fmodern\fcharset0 Courier;
+\f3\fswiss\fcharset0 ArialMT;}
+{\colortbl;\red255\green255\blue255;\red0\green0\blue0;\red47\green180\blue29;\red64\green11\blue217;
+\red26\green26\blue26;\red255\green255\blue255;}
+{\*\expandedcolortbl;;\csgray\c0;\cssrgb\c20241\c73898\c14950;\cssrgb\c32309\c18666\c88229;
+\cssrgb\c13333\c13333\c13333;\cssrgb\c100000\c100000\c100000;}
+\paperw11900\paperh16840\margl1440\margr1440\vieww11520\viewh8400\viewkind0
+\deftab720
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardeftab720\pardirnatural\partightenfactor0
+
+\f0\fs22 \cf2 \CocoaLigature0 Last login: Mon May  5 20:22:34 on ttys000\
+begumgc@Begum-MacBook-Pro-4 ~ % ssh p320032@pallas.ai.rug.nl\
+(p320032@pallas.ai.rug.nl) Password: \
+(p320032@pallas.ai.rug.nl) Authenticator Code: \
+Welcome to Ubuntu 22.04.5 LTS (GNU/Linux 5.15.0-112-generic x86_64)\
+\
+ * Documentation:  https://help.ubuntu.com\
+ * Management:     https://landscape.canonical.com\
+ * Support:        https://ubuntu.com/pro\
+\
+ System information as of Mon May  5 08:36:57 PM CEST 2025\
+\
+  System load:    6.0               Processes:             797\
+  Usage of /home: 59.2% of 2.42TB   Users logged in:       5\
+  Memory usage:   81%               IPv4 address for eth0: 129.125.14.193\
+  Swap usage:     100%\
+\
+Expanded Security Maintenance for Applications is not enabled.\
+\
+53 updates can be applied immediately.\
+To see these additional updates run: apt list --upgradable\
+\
+42 additional security updates can be applied with ESM Apps.\
+Learn more about enabling ESM Apps service at https://ubuntu.com/esm\
+\
+New release '24.04.2 LTS' available.\
+Run 'do-release-upgrade' to upgrade to it.\
+\
+*** System restart required ***\
+\
+You can use Magma/Matlab etc. when you add /opt/netapps/bin to your PATH\
+\
+When you logged in with your rug account (or use kinit <rug-account) you can access\
+ - your LWP home share under /lwphome/<rug account>\
+ - your UWP drive X:   under /opt/xdrive\
+ - your UWP drive Y:   under /opt/ydrive\
+\
+Last login: Wed Apr 23 12:14:55 2025 from 145.100.226.13\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardeftab720\pardirnatural\partightenfactor0
+
+\f1\b \cf3 p320032@pallas
+\f0\b0 \cf2 :
+\f1\b \cf4 ~
+\f0\b0 \cf2 $ magma\
+Magma V2.28-19    Mon May  5 2025 20:37:01 on pallas   [Seed = 927361080]\
+Type ? for help.  Type <Ctrl>-D to quit.\
+> AttachSpec("/home/p320032/KleinianGroups/klngpspec"); \
+> \
+> \
+> \
+> import "/home/p320032/KleinianGroups/bianchi.m" : QuatToMatrix; \
+> \
+> import "/home/p320032/KleinianGroups/geometry/volumes.m" : ComputeZetas;\
+> print "precomputing coefficients...";\
+precomputing coefficients...\
+> zetas := ComputeZetas(100);\
+> print "...done.\\n\\n";\
+...done.\
+\
+\
+> \
+> Gamma0_abel:=function(prime, ord, power, q, G, Generators);\
+function> Mat0 := [QuatToMatrix(g) : g in Generators];\
+function>       K := Parent(Mat0[1][1,1]);\
+function>       OK := MaximalOrder(K);\
+function>       R := MatrixAlgebra(OK,2);\
+function>       MatGen := [R ! m : m in Mat0];\
+function>       /* Append(~MatGen, (R ! Matrix(OK,2,2,[-1,0,0,1])));*/\
+function>       I := (Factorization(prime*OK)[ord,1])^(power)*Factorization(q*\\\
+OK)[1,1];\
+function> \
+function>       PL,r := ProjectiveLine(quo<OK|I>);\
+function>       proj_action := function(M,i)\
+function|function>              t,im :=r(PL[i]*M,true,false);\
+function|function>              return Index(PL,im);\
+function|function>      end function;\
+function> \
+function>       Seq := [[] : m in MatGen];\
+function>       for j in [1..#Seq] do\
+function|for>           for i in [1..#PL] do\
+function|for|for>                       Append(~Seq[j], proj_action(MatGen[j],\\\
+i));\
+function|for|for>               end for;\
+function|for>   end for;\
+function> \
+function>       Symm := Sym(#PL);\
+function>       p := [Symm!el : el in Seq];\
+function> \
+function>       f := hom<G -> Symm | p>;\
+function>       H := sub<G | f>;\
+function> \
+function>       return AQInvariants(H);\
+function> end function;\
+> \
+> PresPGL2 := function(d)\
+function>       O := BianchiOrder(d);\
+function>       _, Faces, Edges := NormalizedBasis(O : GroupType :="Units", ze\\\
+tas := zetas);\
+function>       PG, PGenerators := Presentation(Faces, Edges, O);\
+function>       return PG, PGenerators;\
+function> end function;\
+> \
+> Abelianization1 := function(d, prime, ord, power, q)\
+function>       PG, PGenerators := PresPGL2(d);\
+function>       return Gamma0_abel(prime,ord, power, q, PG, PGenerators);\
+function> end function;\
+> \
+> for d in [-3,-11,-19,-43,-67,-163] do\
+for>    for i in [0..4] do\
+for|for>        print "Output for d = " cat IntegerToString(d) cat ", and i = \\\
+" cat IntegerToString(i);\
+for|for>        Abelianization1(d,2,1,i,-d);\
+for|for>        end for;\
+for> end for;\
+Output for d = -3, and i = 0\
+[ 2 ]\
+Output for d = -3, and i = 1\
+[ 6 ]\
+Output for d = -3, and i = 2\
+[ 2, 2, 6 ]\
+Output for d = -3, and i = 3\
+[ 2, 2, 2, 2, 6, 0 ]\
+Output for d = -3, and i = 4\
+[ 2, 2, 2, 2, 12, 0, 0, 0, 0, 0, 0, 0 ]\
+Output for d = -11, and i = 0\
+[ 2, 2, 0 ]\
+Output for d = -11, and i = 1\
+[ 2, 6, 6, 0, 0 ]\
+Output for d = -11, and i = 2\
+[ 2, 2, 2, 2, 2, 2, 2, 48, 48, 0, 0, 0, 0 ]\
+Output for d = -11, and i = 3\
+[ 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 4, 4, 4, 4, 4, 4, 48, 48, 0, 0, 0, 0, 0, 0, \
+0, 0, 0, 0, 0, 0, 0, 0, 0 ]\
+Output for d = -11, and i = 4\
+[ 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 4, \
+4, 4, 4, 4, 4, 4, 4, 4, 4, 8, 24, 24, 24, 48, 48, 48, 0, 0, 0, 0, 0, 0, 0, 0, 0,\
+0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,\
+0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ]\
+Output for d = -19, and i = 0\
+[ 2, 6, 0 ]\
+Output for d = -19, and i = 1\
+[ 3, 6, 6, 6, 0, 0, 0, 0 ]\
+Output for d = -19, and i = 2\
+[ 2, 2, 2, 2, 2, 2, 2, 2, 6, 12, 12, 12, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ]\
+Output for d = -19, and i = 3\
+[ 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, \
+2, 4, 4, 4, 4, 4, 4, 4, 8, 48, 48, 19104, 19104, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, \
+0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ]\
+Output for d = -19, and i = 4\
+[ 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, \
+2, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4,\
+4, 4, 4, 4, 8, 8, 8, 8, 8, 8, 8, 8, 16, 16, 16, 16, 16, 32, 32, 32, 32, 32, 32, \
+12736, 12736, 561848640, 561848640, 561848640, 561848640, 0, 0, 0, 0, 0, 0, 0, \
+0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,\
+0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,\
+0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,\
+0 ]\
+Output for d = -43, and i = 0\
+[ 2, 2, 2, 6, 0, 0, 0, 0, 0 ]\
+Output for d = -43, and i = 1\
+[ 2, 2, 2, 2, 2, 14, 14, 840, 840, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ]\
+Output for d = -43, and i = 2\
+[ 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 4, 4, 4, 4, 8, 8, 56, 56, 280, \
+280, 560, 560, 44138640, 44138640, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, \
+0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ]\
+Output for d = -43, and i = 3\
+[ 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 8, 8,\
+8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 224, 224, 1120, 1120, 1120, 1120, 29120, 29120, 58851520, 58851520, \
+352053320882497351246405391721691213551556569596160, 352053320882497351246405391721691213551556569596160, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, \
+0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ]\
+Output for d = -43, and i = 4\
+Read from remote host pallas.ai.rug.nl: Connection reset by peer\
+Connection to pallas.ai.rug.nl closed.\
+client_loop: send disconnect: Broken pipe\
+\
+\pard\pardeftab720\partightenfactor0
+
+\f2\fs26 \cf0 \expnd0\expndtw0\kerning0
+\CocoaLigature1 AttachSpec("
+\f0\fs22 \cf2 \kerning1\expnd0\expndtw0 \CocoaLigature0 /home/p320032/KleinianGroups/
+\f2\fs26 \cf0 \expnd0\expndtw0\kerning0
+\CocoaLigature1 klngpspec"); \
+\
+\
+\
+import "
+\f0\fs22 \cf2 \kerning1\expnd0\expndtw0 \CocoaLigature0 /home/p320032/KleinianGroups/
+\f2\fs26 \cf0 \expnd0\expndtw0\kerning0
+\CocoaLigature1 bianchi.m" : QuatToMatrix; \
+\
+import "
+\f0\fs22 \cf2 \kerning1\expnd0\expndtw0 \CocoaLigature0 /home/p320032/KleinianGroups/
+\f2\fs26 \cf0 \expnd0\expndtw0\kerning0
+\CocoaLigature1 geometry/volumes.m" : ComputeZetas;\
+print "precomputing coefficients...";\
+zetas := ComputeZetas(100);\
+print "...done.\\n\\n";\
+\
+Gamma0_abel:=function(prime, ord, power, q, G, Generators);\
+Mat0 := [QuatToMatrix(g) : g in Generators];\
+	K := Parent(Mat0[1][1,1]);\
+	OK := MaximalOrder(K);\
+	R := MatrixAlgebra(OK,2);\
+	MatGen := [R ! m : m in Mat0];\
+	/* Append(~MatGen, (R ! Matrix(OK,2,2,[-1,0,0,1])));*/\
+	I := (Factorization(prime*OK)[ord,1])^(power)*Factorization(q*OK)[1,1];\
+\
+	PL,r := ProjectiveLine(quo<OK|I>);\
+	proj_action := function(M,i)\
+		t,im :=r(PL[i]*M,true,false);\
+		return Index(PL,im);\
+	end function;\
+\
+	Seq := [[] : m in MatGen];\
+	for j in [1..#Seq] do\
+		for i in [1..#PL] do\
+			Append(~Seq[j], proj_action(MatGen[j],i));\
+		end for;\
+	end for;\
+\
+	Symm := Sym(#PL);\
+	p := [Symm!el : el in Seq];\
+\
+	f := hom<G -> Symm | p>;\
+	H := sub<G | f>;\
+\
+	return AQInvariants(H);\
+end function;\
+\
+PresPGL2 := function(d)\
+	O := BianchiOrder(d);\
+	_, Faces, Edges := NormalizedBasis(O : GroupType :="Units", zetas := zetas);\
+	PG, PGenerators := Presentation(Faces, Edges, O);\
+	return PG, PGenerators;\
+end function;\
+\
+Abelianization1 := function(d, prime, ord, power, q)\
+	PG, PGenerators := PresPGL2(d);\
+	return Gamma0_abel(prime,ord, power, q, PG, PGenerators);\
+end function;\
+\
+Abelianization1(-43,2,1,4,43);\
+\
+for d in [-67,-163] do\
+	for i in [0..4] do\
+	
+\f3\fs20 \cf5 \cb6 print "Output for d = " cat IntegerToString(d) cat ", and i = " cat IntegerToString(i);
+\f2\fs26 \cf0 \cb1 \
+	Abelianization1(d,2,1,i,-d);\
+	end for;\
+end for;\
+\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardeftab720\pardirnatural\partightenfactor0
+
+\f0\fs22 \cf2 \kerning1\expnd0\expndtw0 \CocoaLigature0 > Abelianization1(-43,2,1,4,43);\
+[ 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,\
+2, 2, 2, 2, 2, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4,\
+4, 4, 4, 4, 4, 4, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16,\
+16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32,\
+32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 128, 128, 640,\
+640, 640, 640, 640, 640, 640, 640, 640, 640, 4480, 4480, 295680, 295680, 295680, 295680, 3843840, 3843840, 361320960, 361320960, 361320960, 361320960, 15536801280, 15536801280,\
+1408213283529989404985621566886764854206226278384640, 1408213283529989404985621566886764854206226278384640,\
+1969164477443408414893466130651944132061771025922669557786834279363055328763716869154341732451992973573120,\
+1969164477443408414893466130651944132061771025922669557786834279363055328763716869154341732451992973573120,\
+1969164477443408414893466130651944132061771025922669557786834279363055328763716869154341732451992973573120,\
+1969164477443408414893466130651944132061771025922669557786834279363055328763716869154341732451992973573120, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,\
+0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,\
+0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,\
+0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ]\
+>\
+\
+> for d in [-67,-163] do\
+for>    for i in [0..4] do\
+for|for>        print "Output for d = " cat IntegerToString(d) cat ", and i = " cat IntegerToString(i);\
+for|for>        Abelianization1(d,2,1,i,-d);\
+for|for>        end for;\
+for> end for;\
+Output for d = -67, and i = 0\
+[ 3, 210, 210, 0, 0, 0, 0, 0 ]\
+Output for d = -67, and i = 1\
+[ 3, 3, 3, 6, 42, 42, 84, 84, 840, 840, 171786720, 171786720, 0, 0, 0, 0, 0, 0,\
+0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ]\
+Output for d = -67, and i = 2\
+[ 3, 6, 6, 6, 6, 6, 6, 6, 12, 12, 12, 12, 12, 12, 12, 12, 84, 84, 84, 84, 168, 168, 168, 168, 146160, 146160, 515360160, 515360160,\
+5941017767406944056290672269335904827127284851646530780960, 5941017767406944056290672269335904827127284851646530780960, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,\
+0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ]\
+Output for d = -67, and i = 3\
+[ 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 4, 4, 4,\
+4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4,\
+12, 12, 12, 12, 12, 12, 12, 12, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24,\
+24, 24, 48, 48, 48, 48, 48, 48, 48, 48, 48, 48, 48, 48, 48, 48, 48, 48, 48, 48,\
+336, 336, 3360, 3360, 3360, 3360, 3360, 3360, 10080, 10080, 292320, 584640,\
+584640, 584640, 20614406400, 20614406400,\
+673473774113251178221110608451918171203149010782650729329625600,\
+673473774113251178221110608451918171203149010782650729329625600,\
+1794066440390771207400623392805121141960619944377412327771586969779920611742878\\\
+0752786379548103315962405627528848927182018638534834755893727437241404743560304\\\
+3242312632385390902077383436376883944512006194533013369800780358410992101611539\\\
+45187890736550207994037555200, 179406644039077120740062339280512114196061994437\\\
+7412327771586969779920611742878075278637954810331596240562752884892718201863853\\\
+4834755893727437241404743560304324231263238539090207738343637688394451200619453\\\
+301336980078035841099210161153945187890736550207994037555200, 0, 0, 0, 0, 0, 0,\
+0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,\
+0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,\
+0, 0, 0, 0, 0 ]\
+Output for d = -67, and i = 4\
+Killed\
+}
