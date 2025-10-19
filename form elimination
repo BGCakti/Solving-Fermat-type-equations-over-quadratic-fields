@@ -1,0 +1,61 @@
+K := QuadraticField(7); //for different values for d,change it to QuadraticField(d)
+OK := MaximalOrder(K);
+P:= Factorization(2*OK)[1,1];
+Q:=Factorization(7*OK)[1,1]; //for different values for d,change it to Factorization(d*OK)[1,1]
+
+
+Aq := function(q);      
+    return { Integers()| a : a in [Ceiling(-2*Sqrt(Norm(q)))..Floor(2*Sqrt(Norm(q)))] | (Norm(q)+1-a) mod 4 eq 0};
+end function;
+
+
+function B(f,q)
+    OQf:=Integers(HeckeEigenvalueField(f));
+    myIdeal:=ideal<OQf|1>;
+    a_qf:=HeckeEigenvalue(Eigenform(f),q);
+    for a in Aq(q) do
+        myIdeal:=myIdeal*(ideal<OQf | a-a_qf>);
+    end for; 
+    myIdeal:=myIdeal*(ideal<OQf|Norm(q)*((Norm(q)+1)^2-a_qf^2)>);
+    return myIdeal;
+end function;
+
+function BS(f,S)
+    OQf:=Integers(HeckeEigenvalueField(f));
+   BfS:=ideal<OQf|0>;
+   zeroideal:=ideal<OQf|0>;
+    for l in S do
+        BfS:=BfS+B(f,l);
+    end for;
+    return Integers()!Norm(BfS);
+end function;
+
+function survivingPrimesWithForms(level,S)
+	M:=HilbertCuspForms(K,level);
+	MN:=NewSubspace(M);
+    eigenspaces:=NewformDecomposition(MN);
+    survivors:=[* *];
+    survivingPrimes:=[* *];
+    for f in eigenspaces do
+        Cff:=BS(f,S);
+        if Cff eq 0 then
+            print "Cff is 0";
+            survivors:=Append(survivors,[* f, [* 0 *] *]);
+            continue;
+        end if;
+        print "Factorize Cff=", Factorization(Cff);
+        survivingPrimes:=[l : l in PrimeDivisors(Norm(Cff))];
+        survivors:=Append(survivors,[* f, survivingPrimes *]);
+    end for;
+    return survivors;
+end function;
+
+S:=[P : P in PrimesUpTo(50,K) | IsOdd(Norm(P)) and IsPrime(Norm(P)) and P ne Q];
+
+//Possible levels are P*Q, P^4*Q
+
+for i in [1,4] do
+    print "i=", i;
+    level := P^i * Q;
+    survivingPrimesWithForms(level, S);
+end for;
