@@ -1,0 +1,38 @@
+R<x> := PolynomialRing(Integers());
+polynomials := [* *];
+
+for a in [-4..4] do
+    for b in [-4..4] do
+        f := x^2 + a*x + b;
+        roots := Roots(f, ComplexField(100));
+        good := true;
+        for r in roots do
+            root_value := r[1];
+            multiplicity := r[2];
+            for i in [1..multiplicity] do
+                if Abs(root_value) gt 3 then
+                    good := false;
+                    break;
+                end if;
+            end for;
+            if not good then
+                break;
+            end if;
+        end for;
+        if good then
+            Append(~polynomials, f);
+        end if;
+    end for;
+end for;
+
+// Now compute resultants with x^24 - 4
+h := x^24 - 4;
+
+for f in polynomials do
+    if Coefficient(f, 0) eq 4 then
+        res := Resultant(f, h);
+        print "Polynomial:", f;
+        print "Resultant with x^24 - 4:", Factorization(res);
+        print "+++++++++++++++++++++++++++++++++++++++++";
+    end if;
+end for;
